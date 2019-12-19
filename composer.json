@@ -18,12 +18,12 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "cwreden\\Log\\": "src/",
+            "cwreden\\Log\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "cwreden\\Tests\\Log": "tests/"
+            "cwreden\\Tests\\Log\\": "tests/"
         }
     }
 }
