@@ -2,129 +2,71 @@
 
 namespace cwreden\Tests\Log;
 
+use cwreden\Log\LoggerAwareComponentTrait;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Psr\Log\NullLogger;
 
+#[CoversTrait(LoggerAwareComponentTrait::class)]
 class LoggerAwareComponentTraitTest extends TestCase
 {
-    public function testCanLogEmergency()
+    private const MESSAGE = 'Test message';
+    private const CONTEXT = ['key' => 'value'];
+
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function logLevels(): array
     {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
-            ->method('log')
-            ->with(LogLevel::EMERGENCY, 'Test emergency');
-
-        $component = new TestComponent();
-        $component->setLogger($loggerMock);
-
-        $component->testLogEmergency('Test emergency');
+        return [
+            'emergency' => [LogLevel::EMERGENCY, 'testLogEmergency'],
+            'alert' => [LogLevel::ALERT, 'testLogAlert'],
+            'critical' => [LogLevel::CRITICAL, 'testLogCritical'],
+            'error' => [LogLevel::ERROR, 'testLogError'],
+            'warning' => [LogLevel::WARNING, 'testLogWarning'],
+            'notice' => [LogLevel::NOTICE, 'testLogNotice'],
+            'info' => [LogLevel::INFO, 'testLogInfo'],
+            'debug' => [LogLevel::DEBUG, 'testLogDebug'],
+        ];
     }
 
-    public function testCanLogAlert()
+    #[DataProvider('logLevels')]
+    public function testDelegatesToLoggerWithMatchingLevel(string $level, string $method): void
     {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
             ->method('log')
-            ->with(LogLevel::ALERT, 'Test alert');
+            ->with($level, self::MESSAGE, self::CONTEXT);
 
         $component = new TestComponent();
-        $component->setLogger($loggerMock);
+        $component->setLogger($logger);
 
-        $component->testLogAlert('Test alert');
+        $component->$method(self::MESSAGE, self::CONTEXT);
     }
 
-    public function testCanLogCritical()
+    public function testPassesAnEmptyContextByDefault(): void
     {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
             ->method('log')
-            ->with(LogLevel::CRITICAL, 'Test critical');
+            ->with(LogLevel::INFO, self::MESSAGE, []);
 
         $component = new TestComponent();
-        $component->setLogger($loggerMock);
+        $component->setLogger($logger);
 
-        $component->testLogCritical('Test critical');
+        $component->testLogInfo(self::MESSAGE);
     }
 
-    public function testCanLogError()
+    /**
+     * Without a logger the trait has to stay silent instead of failing on a null
+     * property. This is the guard in LoggerAwareComponentTrait::log().
+     */
+    public function testStaysSilentWithoutALogger(): void
     {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
-            ->method('log')
-            ->with(LogLevel::ERROR, 'Test error');
+        $this->expectNotToPerformAssertions();
 
-        $component = new TestComponent();
-        $component->setLogger($loggerMock);
-
-        $component->testLogError('Test error');
-    }
-
-    public function testCanLogWarning()
-    {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
-            ->method('log')
-            ->with(LogLevel::WARNING, 'Test warning');
-
-        $component = new TestComponent();
-        $component->setLogger($loggerMock);
-
-        $component->testLogWarning('Test warning');
-    }
-
-    public function testCanLogNotice()
-    {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
-            ->method('log')
-            ->with(LogLevel::NOTICE, 'Test notice');
-
-        $component = new TestComponent();
-        $component->setLogger($loggerMock);
-
-        $component->testLogNotice('Test notice');
-    }
-
-    public function testCanLogInfo()
-    {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
-            ->method('log')
-            ->with(LogLevel::INFO, 'Test info');
-
-        $component = new TestComponent();
-        $component->setLogger($loggerMock);
-
-        $component->testLogInfo('Test info');
-    }
-
-    public function testCanLogDebug()
-    {
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $loggerMock->expects(self::once())
-            ->method('log')
-            ->with(LogLevel::DEBUG, 'Test debug');
-
-        $component = new TestComponent();
-        $component->setLogger($loggerMock);
-
-        $component->testLogDebug('Test debug');
+        (new TestComponent())->testLogInfo(self::MESSAGE);
     }
 }

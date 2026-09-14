@@ -1,9 +1,12 @@
 composer.phar
 /vendor/
 .phpunit.result.cache
+.phpunit.cache/
 
 .idea/
 
 # Commit your application's lock file https://getcomposer.org/doc/01-basic-usage.md#commit-your-composer-lock-file-to-version-control
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
-# composer.lock
+# This is a library, so no lock file: the test matrix has to resolve a different
+# PHPUnit line per PHP version (11.x on 8.2, 12.x from 8.3, 13.x from 8.4).
+composer.lock

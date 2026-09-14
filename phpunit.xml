@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.5/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+<!--
+  Deliberately without xsi:noNamespaceSchemaLocation: this file has to satisfy PHPUnit
+  11, 12 and 13 at the same time (11.x on PHP 8.2, 12.x from 8.3, 13.x from 8.4). A
+  hard-wired schema reference would be wrong for two of the three lines. Only use
+  attributes that all three understand.
+-->
+<phpunit bootstrap="vendor/autoload.php"
+         cacheDirectory=".phpunit.cache"
          executionOrder="depends,defects"
-         forceCoversAnnotation="true"
-         beStrictAboutCoversAnnotation="true"
+         requireCoverageMetadata="true"
+         beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
-         beStrictAboutTodoAnnotatedTests="true"
-         verbose="true">
+         failOnRisky="true"
+         failOnWarning="true">
     <testsuites>
         <testsuite name="default">
             <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+    <source>
+        <include>
             <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </source>
 </phpunit>
