@@ -3,10 +3,11 @@
     "type": "library",
     "description": "This library provide some utils for log handling",
     "require": {
-        "psr/log": "^1.1"
+        "php": "^8.2",
+        "psr/log": "^1.1 || ^2.0 || ^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^11.5 || ^12.0 || ^13.0"
     },
     "license": "MIT",
     "authors": [
